@@ -7,6 +7,7 @@ import "./Editor.css";
 import { EditorLeaf } from "./EditorLeaf";
 import { EDITOR_FEATURES } from "./utils";
 import { HoveringToolbar } from "./HoveringToolbar";
+import { isUndefined } from "lodash";
 
 const initialValue: Descendant[] = [
   {
@@ -32,13 +33,33 @@ export const Editor: React.FC<Props> = ({ className }) => {
         {EDITOR_FEATURES.map((feature, index) => (
           <ToolbarButton
             icon={feature.icon}
-            onClick={() => feature.onClick(editor)}
+            onClick={() => feature.onActivate(editor)}
             key={index}
           />
         ))}
       </div>
       <HoveringToolbar />
-      <Editable className={className} renderLeaf={renderLeaf} />
+      <Editable
+        className={className}
+        renderLeaf={renderLeaf}
+        onKeyDown={(event) => {
+          EDITOR_FEATURES.forEach((feature) => {
+            const { hotkey } = feature;
+            if (!isUndefined(hotkey)) {
+              if (
+                !!hotkey.altKey === event.altKey &&
+                !!hotkey.ctrlKey === event.ctrlKey &&
+                !!hotkey.metaKey === event.metaKey &&
+                !!hotkey.shiftKey === event.shiftKey &&
+                hotkey.key === event.key
+              ) {
+                event.preventDefault();
+                feature.onActivate(editor);
+              }
+            }
+          });
+        }}
+      />
     </Slate>
   );
 };

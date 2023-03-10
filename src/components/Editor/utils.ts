@@ -8,11 +8,19 @@ type CustomTextMarkProp = keyof Pick<
   "isBold" | "isItalic" | "isStrikethrough"
 >;
 
+type HotkeyData = Partial<
+  Pick<
+    React.KeyboardEvent,
+    "altKey" | "ctrlKey" | "shiftKey" | "metaKey" | "key"
+  >
+>;
+
 type EditorFeature = {
   icon: IconDefinition;
   isAvailableInHoveringToolbar: (editor: Editor) => boolean;
   isActive: (editor: Editor) => boolean;
-  onClick: (editor: Editor) => void;
+  onActivate: (editor: Editor) => void;
+  hotkey?: HotkeyData;
 };
 
 export const EDITOR_FEATURES: readonly EditorFeature[] = [
@@ -20,19 +28,22 @@ export const EDITOR_FEATURES: readonly EditorFeature[] = [
     icon: solid("bold"),
     isActive: (editor) => isMarkActive(editor, "isBold"),
     isAvailableInHoveringToolbar: () => true,
-    onClick: (editor) => toggleMark(editor, "isBold"),
+    onActivate: (editor) => toggleMark(editor, "isBold"),
+    hotkey: { ctrlKey: true, key: "b" },
   },
   {
     icon: solid("italic"),
     isActive: (editor) => isMarkActive(editor, "isItalic"),
     isAvailableInHoveringToolbar: () => true,
-    onClick: (editor) => toggleMark(editor, "isItalic"),
+    onActivate: (editor) => toggleMark(editor, "isItalic"),
+    hotkey: { ctrlKey: true, key: "i" },
   },
   {
     icon: solid("strikethrough"),
     isActive: (editor) => isMarkActive(editor, "isStrikethrough"),
     isAvailableInHoveringToolbar: () => true,
-    onClick: (editor) => toggleMark(editor, "isStrikethrough"),
+    onActivate: (editor) => toggleMark(editor, "isStrikethrough"),
+    hotkey: { ctrlKey: true, key: "s" },
   },
 ];
 

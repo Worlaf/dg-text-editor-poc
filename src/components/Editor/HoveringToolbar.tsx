@@ -53,7 +53,7 @@ export const HoveringToolbar: React.FC = () => {
         ).map((feature, index) => (
           <ToolbarButton
             icon={feature.icon}
-            onClick={() => feature.onClick(editor)}
+            onClick={() => feature.onActivate(editor)}
             key={index}
           />
         ))}
