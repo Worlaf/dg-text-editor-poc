@@ -3,11 +3,10 @@ import { createEditor, Descendant } from "slate";
 import { Slate, Editable, withReact, RenderLeafProps } from "slate-react";
 import { ToolbarButton } from "./ToolbarButton";
 
-import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
-
 import "./Editor.css";
 import { EditorLeaf } from "./EditorLeaf";
-import { toggleMark } from "./utils";
+import { EDITOR_FEATURES } from "./utils";
+import { HoveringToolbar } from "./HoveringToolbar";
 
 const initialValue: Descendant[] = [
   {
@@ -30,19 +29,15 @@ export const Editor: React.FC<Props> = ({ className }) => {
   return (
     <Slate editor={editor} value={initialValue}>
       <div className="toolbar">
-        <ToolbarButton
-          icon={solid("bold")}
-          onClick={() => toggleMark(editor, "isBold")}
-        />
-        <ToolbarButton
-          icon={solid("italic")}
-          onClick={() => toggleMark(editor, "isItalic")}
-        />
-        <ToolbarButton
-          icon={solid("strikethrough")}
-          onClick={() => toggleMark(editor, "isStrikethrough")}
-        />
+        {EDITOR_FEATURES.map((feature, index) => (
+          <ToolbarButton
+            icon={feature.icon}
+            onClick={() => feature.onClick(editor)}
+            key={index}
+          />
+        ))}
       </div>
+      <HoveringToolbar />
       <Editable className={className} renderLeaf={renderLeaf} />
     </Slate>
   );
