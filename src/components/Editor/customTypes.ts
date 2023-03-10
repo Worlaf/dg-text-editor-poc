@@ -1,9 +1,15 @@
-// TypeScript users only add this code
-import { BaseEditor, Descendant } from "slate";
+import { BaseEditor } from "slate";
 import { ReactEditor } from "slate-react";
 
 type CustomElement = { type: "paragraph"; children: CustomText[] };
-type CustomText = { text: string };
+
+type FormattedText = {
+  isBold?: boolean;
+  isItalic?: boolean;
+  isStrikethrough?: boolean;
+};
+
+export type CustomText = { text: string } & FormattedText;
 
 declare module "slate" {
   interface CustomTypes {
