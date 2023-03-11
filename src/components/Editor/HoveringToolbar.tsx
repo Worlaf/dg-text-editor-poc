@@ -55,6 +55,7 @@ export const HoveringToolbar: React.FC = () => {
             icon={feature.icon}
             onClick={() => feature.onActivate(editor)}
             key={index}
+            isActive={feature.isActive(editor)}
           />
         ))}
       </div>

@@ -1,6 +1,12 @@
 import * as React from "react";
 import { createEditor, Descendant } from "slate";
-import { Slate, Editable, withReact, RenderLeafProps } from "slate-react";
+import {
+  Slate,
+  Editable,
+  withReact,
+  RenderLeafProps,
+  RenderElementProps,
+} from "slate-react";
 import { ToolbarButton } from "./ToolbarButton";
 
 import "./Editor.css";
@@ -8,11 +14,51 @@ import { EditorLeaf } from "./EditorLeaf";
 import { EDITOR_FEATURES } from "./utils";
 import { HoveringToolbar } from "./HoveringToolbar";
 import { isUndefined } from "lodash";
+import { EditorElement } from "./EditorElement";
 
 const initialValue: Descendant[] = [
+  { type: "heading", children: [{ text: "Heading" }] },
   {
     type: "paragraph",
-    children: [{ text: "A line of text in a paragraph." }],
+    children: [
+      {
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      },
+    ],
+  },
+  {
+    type: "bulleted-list",
+    children: [
+      {
+        type: "list-item",
+        children: [{ text: "list item 1" }],
+      },
+      {
+        type: "list-item",
+        children: [{ text: "list item 2" }],
+      },
+      {
+        type: "list-item",
+        children: [{ text: "list item 3" }],
+      },
+    ],
+  },
+  {
+    type: "numbered-list",
+    children: [
+      {
+        type: "list-item",
+        children: [{ text: "list item 1" }],
+      },
+      {
+        type: "list-item",
+        children: [{ text: "list item 2" }],
+      },
+      {
+        type: "list-item",
+        children: [{ text: "list item 3" }],
+      },
+    ],
   },
 ];
 
@@ -26,6 +72,10 @@ export const Editor: React.FC<Props> = ({ className }) => {
     (props: RenderLeafProps) => <EditorLeaf {...props} />,
     []
   );
+  const renderElement = React.useCallback(
+    (props: RenderElementProps) => <EditorElement {...props} />,
+    []
+  );
 
   return (
     <Slate editor={editor} value={initialValue}>
@@ -35,6 +85,7 @@ export const Editor: React.FC<Props> = ({ className }) => {
             icon={feature.icon}
             onClick={() => feature.onActivate(editor)}
             key={index}
+            isActive={feature.isActive(editor)}
           />
         ))}
       </div>
@@ -42,6 +93,7 @@ export const Editor: React.FC<Props> = ({ className }) => {
       <Editable
         className={className}
         renderLeaf={renderLeaf}
+        renderElement={renderElement}
         onKeyDown={(event) => {
           EDITOR_FEATURES.forEach((feature) => {
             const { hotkey } = feature;
