@@ -1,16 +1,20 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useFocused, useSlate } from "slate-react";
 import { ToolbarButton } from "./ToolbarButton";
-import { EDITOR_FEATURES } from "./utils";
+import { EDITOR_FEATURES, getSelectedLink, unwrapLink } from "./utils";
 
 import "./HoveringToolbar.css";
 import { Editor, Range } from "slate";
+import { LinkElement } from "./customTypes";
+import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 
 export const HoveringToolbar: React.FC = () => {
   const ref = useRef<HTMLDivElement | null>(null);
   const editor = useSlate();
   const inFocus = useFocused();
+
+  const link = getSelectedLink(editor);
 
   useEffect(() => {
     const el = ref.current;
@@ -48,16 +52,11 @@ export const HoveringToolbar: React.FC = () => {
   return (
     <Portal>
       <div className="hoveringToolbar" ref={ref}>
-        {EDITOR_FEATURES.filter((feature) =>
-          feature.isAvailableInHoveringToolbar(editor)
-        ).map((feature, index) => (
-          <ToolbarButton
-            icon={feature.icon}
-            onClick={() => feature.onActivate(editor)}
-            key={index}
-            isActive={feature.isActive(editor)}
-          />
-        ))}
+        {!!link ? (
+          <LinkContent editor={editor} link={link} />
+        ) : (
+          <CommonContent editor={editor} />
+        )}
       </div>
     </Portal>
   );
@@ -67,4 +66,37 @@ export const Portal: React.FC<{ children: ReactNode }> = ({ children }) => {
   return typeof document === "object"
     ? ReactDOM.createPortal(children, document.body)
     : null;
+};
+
+const CommonContent: React.FC<{ editor: Editor }> = ({ editor }) => {
+  return (
+    <>
+      {EDITOR_FEATURES.filter((feature) =>
+        feature.isAvailableInHoveringToolbar(editor)
+      ).map((feature, index) => (
+        <ToolbarButton
+          icon={feature.icon}
+          onClick={() => feature.onActivate(editor)}
+          key={index}
+          isActive={feature.isActive(editor)}
+        />
+      ))}
+    </>
+  );
+};
+
+const LinkContent: React.FC<{ editor: Editor; link: LinkElement }> = ({
+  editor,
+  link,
+}) => {
+  return (
+    <>
+      <a href={link.url}>{link.url}</a>
+      {/* Todo: move some features to separate variables and provide helper to create button? */}
+      <ToolbarButton
+        icon={solid("link-slash")}
+        onClick={() => unwrapLink(editor)}
+      />
+    </>
+  );
 };

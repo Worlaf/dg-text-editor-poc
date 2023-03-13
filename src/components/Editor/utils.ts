@@ -1,8 +1,9 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { Editor, Transforms, Text, Element } from "slate";
-import { CustomText, ElementType, ListElementType } from "./customTypes";
+import { Editor, Transforms, Text, Element, Range } from "slate";
+import { CustomText, ElementType, LinkElement } from "./customTypes";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { isUndefined } from "lodash";
+import { isUrl } from "../../utils/isUrl";
 
 type CustomTextMarkProp = keyof Pick<
   CustomText,
@@ -63,6 +64,24 @@ export const EDITOR_FEATURES: readonly EditorFeature[] = [
     isActive: (editor) => isBlockActive(editor, "numbered-list"),
     isAvailableInHoveringToolbar: () => true,
     onActivate: (editor) => toggleBlock(editor, "numbered-list"),
+  },
+  {
+    icon: solid("link"),
+    isActive: (editor) => isLinkActive(editor),
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => {
+      const url = window.prompt("Enter the URL of the link:");
+
+      if (url && editor.selection) {
+        wrapLink(editor, url);
+      }
+    },
+  },
+  {
+    icon: solid("link-slash"),
+    isActive: () => false,
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => unwrapLink(editor),
   },
 ];
 
@@ -126,5 +145,82 @@ const toggleBlock = (editor: Editor, blockType: ElementType) => {
   if (!isActive && isList) {
     const block = { type: blockType, children: [] };
     Transforms.wrapNodes(editor, block);
+  }
+};
+
+export const withCustomInlineElements = (editor: Editor) => {
+  const { insertData, insertText, isInline } = editor;
+
+  editor.isInline = (element) =>
+    ["link"].includes(element.type) || isInline(element);
+
+  editor.insertText = (text) => {
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertText(text);
+    }
+  };
+
+  editor.insertData = (data) => {
+    const text = data.getData("text/plain");
+
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertData(data);
+    }
+  };
+
+  return editor;
+};
+
+export const getSelectedLink = (editor: Editor): LinkElement | undefined => {
+  const [linkEntry] = Array.from(
+    Editor.nodes(editor, {
+      match: (n) =>
+        !Editor.isEditor(n) && Element.isElement(n) && n.type === "link",
+    })
+  );
+
+  if (!linkEntry) {
+    return undefined;
+  }
+
+  const [link] = linkEntry;
+  if (Element.isElement(link) && link.type === "link") {
+    return link;
+  }
+
+  return undefined;
+};
+
+export const isLinkActive = (editor: Editor) => !!getSelectedLink(editor);
+
+export const unwrapLink = (editor: Editor) => {
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) && Element.isElement(n) && n.type === "link",
+  });
+};
+
+const wrapLink = (editor: Editor, url: string) => {
+  if (isLinkActive(editor)) {
+    unwrapLink(editor);
+  }
+
+  const { selection } = editor;
+  const isCollapsed = selection && Range.isCollapsed(selection);
+  const link: LinkElement = {
+    type: "link",
+    url,
+    children: isCollapsed ? [{ text: url }] : [],
+  };
+
+  if (isCollapsed) {
+    Transforms.insertNodes(editor, link);
+  } else {
+    Transforms.wrapNodes(editor, link, { split: true });
+    Transforms.collapse(editor, { edge: "end" });
   }
 };

@@ -1,13 +1,18 @@
 import { BaseEditor, Descendant } from "slate";
 import { ReactEditor } from "slate-react";
 
+export type LinkElement = { type: "link"; url: string; children: Descendant[] };
+
 export type ListElementType = "bulleted-list" | "numbered-list";
 export type ElementType =
   | ListElementType
   | "paragraph"
   | "list-item"
   | "heading";
-type CustomElement = { type: ElementType; children: Descendant[] };
+
+type CustomElement =
+  | { type: ElementType; children: Descendant[] }
+  | LinkElement;
 
 type FormattedText = {
   isBold?: boolean;
