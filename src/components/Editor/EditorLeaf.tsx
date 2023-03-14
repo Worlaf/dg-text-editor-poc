@@ -5,17 +5,25 @@ export const EditorLeaf: React.FC<RenderLeafProps> = ({
   children,
   leaf,
 }) => {
+  const style: React.CSSProperties = {
+    backgroundColor: leaf.backgroundColor,
+  };
+
   if (leaf.isBold) {
-    children = <strong>{children}</strong>;
+    children = <strong style={style}>{children}</strong>;
   }
 
   if (leaf.isItalic) {
-    children = <em>{children}</em>;
+    children = <em style={style}>{children}</em>;
   }
 
   if (leaf.isStrikethrough) {
-    children = <s>{children}</s>;
+    children = <s style={style}>{children}</s>;
   }
 
-  return <span {...attributes}>{children}</span>;
+  return (
+    <span {...attributes} style={style}>
+      {children}
+    </span>
+  );
 };

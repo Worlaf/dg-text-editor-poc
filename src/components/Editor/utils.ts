@@ -8,14 +8,16 @@ import {
   SimpleElementType,
   VOID_ELEMENT_TYPES,
 } from "./customTypes";
-import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
+import { regular, solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { isUndefined } from "lodash";
 import { isUrl } from "../../utils/isUrl";
 
-type CustomTextMarkProp = keyof Pick<
+type ToggleableTextMarkProp = keyof Pick<
   CustomText,
   "isBold" | "isItalic" | "isStrikethrough"
 >;
+
+type StringTextMarkProp = keyof Pick<CustomText, "backgroundColor">;
 
 type HotkeyData = Partial<
   Pick<
@@ -52,6 +54,24 @@ export const EDITOR_FEATURES: readonly EditorFeature[] = [
     isAvailableInHoveringToolbar: () => true,
     onActivate: (editor) => toggleMark(editor, "isItalic"),
     hotkey: { ctrlKey: true, key: "i" },
+  },
+  {
+    icon: solid("droplet"),
+    isActive: () => false,
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => setMarkTextValue(editor, "backgroundColor", "red"),
+  },
+  {
+    icon: solid("droplet"),
+    isActive: () => false,
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => setMarkTextValue(editor, "backgroundColor", "blue"),
+  },
+  {
+    icon: solid("droplet-slash"),
+    isActive: () => false,
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => setMarkTextValue(editor, "backgroundColor", ""),
   },
   {
     icon: solid("strikethrough"),
@@ -98,7 +118,10 @@ export const EDITOR_FEATURES: readonly EditorFeature[] = [
   },
 ];
 
-export const isMarkActive = (editor: Editor, markProp: CustomTextMarkProp) => {
+export const isMarkActive = (
+  editor: Editor,
+  markProp: ToggleableTextMarkProp
+) => {
   const [match] = Array.from(
     Editor.nodes(editor, {
       match: (node) => Text.isText(node) && !!node[markProp],
@@ -109,11 +132,26 @@ export const isMarkActive = (editor: Editor, markProp: CustomTextMarkProp) => {
   return !isUndefined(match);
 };
 
-export const toggleMark = (editor: Editor, markProp: CustomTextMarkProp) => {
+export const toggleMark = (
+  editor: Editor,
+  markProp: ToggleableTextMarkProp
+) => {
   const isActive = isMarkActive(editor, markProp);
   Transforms.setNodes(
     editor,
     { [markProp]: !isActive },
+    { match: (node) => Text.isText(node), split: true }
+  );
+};
+
+export const setMarkTextValue = (
+  editor: Editor,
+  markProp: StringTextMarkProp,
+  value: string
+) => {
+  Transforms.setNodes(
+    editor,
+    { [markProp]: value },
     { match: (node) => Text.isText(node), split: true }
   );
 };

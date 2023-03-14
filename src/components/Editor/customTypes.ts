@@ -29,6 +29,7 @@ type FormattedText = {
   isBold?: boolean;
   isItalic?: boolean;
   isStrikethrough?: boolean;
+  backgroundColor?: string;
 };
 
 export type CustomText = { text: string } & FormattedText;
