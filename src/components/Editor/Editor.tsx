@@ -95,6 +95,14 @@ const initialValue: Descendant[] = [
       },
     ],
   },
+  {
+    type: "code-block",
+    children: [
+      { type: "code-line", children: [{ text: "x = 5;" }] },
+      { type: "code-line", children: [{ text: "y = 6;" }] },
+      { type: "code-line", children: [{ text: "z = x + y;" }] },
+    ],
+  },
 ];
 
 type Props = {

@@ -14,6 +14,8 @@ export type SimpleElementType =
   | "paragraph"
   | "list-item"
   | "heading"
+  | "code-block"
+  | "code-line"
   | ListElementType;
 
 type CustomElement =

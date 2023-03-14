@@ -73,6 +73,12 @@ export const EDITOR_FEATURES: readonly EditorFeature[] = [
     onActivate: (editor) => toggleBlock(editor, "numbered-list"),
   },
   {
+    icon: solid("code"),
+    isActive: (editor) => isBlockActive(editor, "code-block"),
+    isAvailableInHoveringToolbar: () => true,
+    onActivate: (editor) => toggleBlock(editor, "code-block"),
+  },
+  {
     icon: solid("link"),
     isActive: (editor) => isLinkActive(editor),
     isAvailableInHoveringToolbar: () => true,
@@ -141,13 +147,17 @@ const toggleBlock = (editor: Editor, blockType: SimpleElementType) => {
     match: (node) =>
       !Editor.isEditor(node) &&
       Element.isElement(node) &&
-      LIST_TYPES.includes(node.type),
+      (LIST_TYPES.includes(node.type) || node.type === "code-block"),
     split: true,
   });
 
   const resolveElementType = (): ElementType => {
     if (isActive) {
       return "paragraph";
+    }
+
+    if (blockType === "code-block") {
+      return "code-line";
     }
 
     if (isList) {
@@ -161,7 +171,7 @@ const toggleBlock = (editor: Editor, blockType: SimpleElementType) => {
     type: resolveElementType(),
   });
 
-  if (!isActive && isList) {
+  if (!isActive && (isList || blockType === "code-block")) {
     const block = { type: blockType, children: [] };
     Transforms.wrapNodes(editor, block);
   }

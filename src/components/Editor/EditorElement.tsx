@@ -25,6 +25,18 @@ export const EditorElement: React.FC<RenderElementProps> = (props) => {
       return <LinkElement {...props} />;
     case "numbered-list-item":
       return <NumberedListItem {...props} />;
+    case "code-block":
+      return (
+        <div className="codeBlock" {...attributes}>
+          <code>{children}</code>
+        </div>
+      );
+    case "code-line":
+      return (
+        <div className="codeLine" {...attributes}>
+          {children}
+        </div>
+      );
     default:
       return <p {...attributes}>{children}</p>;
   }
