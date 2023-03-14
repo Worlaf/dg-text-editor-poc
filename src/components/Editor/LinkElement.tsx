@@ -13,8 +13,6 @@ export const LinkElement: React.FC<RenderElementProps> = ({
   children,
   element,
 }) => {
-  // const selected = useSelected();
-
   if (!("url" in element)) {
     console.error("unexpected link element data", element);
     return <p {...attributes}>{children}</p>;

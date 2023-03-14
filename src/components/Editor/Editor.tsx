@@ -11,7 +11,11 @@ import { ToolbarButton } from "./ToolbarButton";
 
 import "./Editor.css";
 import { EditorLeaf } from "./EditorLeaf";
-import { EDITOR_FEATURES, withCustomInlineElements } from "./utils";
+import {
+  EDITOR_FEATURES,
+  withCustomInlineElements,
+  withCustomVoidElements,
+} from "./utils";
 import { HoveringToolbar } from "./HoveringToolbar";
 import { isUndefined } from "lodash";
 import { EditorElement } from "./EditorElement";
@@ -47,15 +51,46 @@ const initialValue: Descendant[] = [
     type: "numbered-list",
     children: [
       {
-        type: "list-item",
+        type: "numbered-list-item",
         children: [{ text: "list item 1" }],
       },
       {
-        type: "list-item",
+        type: "numbered-list-item",
         children: [{ text: "list item 2" }],
       },
       {
-        type: "list-item",
+        customNumber: 7,
+        type: "numbered-list-item",
+        children: [{ text: "list item 3 [7]" }],
+      },
+      {
+        type: "numbered-list-item",
+        children: [{ text: "list item 3" }],
+      },
+      {
+        customNumber: 13,
+        type: "numbered-list-item",
+        children: [{ text: "list item 3 [13]" }],
+      },
+      {
+        type: "numbered-list-item",
+        children: [{ text: "list item 3" }],
+      },
+      {
+        type: "numbered-list-item",
+        children: [{ text: "list item 3" }],
+      },
+      {
+        customNumber: 124,
+        type: "numbered-list-item",
+        children: [{ text: "list item 3 [124]" }],
+      },
+      {
+        type: "numbered-list-item",
+        children: [{ text: "list item 3" }],
+      },
+      {
+        type: "numbered-list-item",
         children: [{ text: "list item 3" }],
       },
     ],
@@ -68,7 +103,10 @@ type Props = {
 
 export const Editor: React.FC<Props> = ({ className }) => {
   const editor = React.useMemo(
-    () => withCustomInlineElements(withReact(createEditor())),
+    () =>
+      withCustomVoidElements(
+        withCustomInlineElements(withReact(createEditor()))
+      ),
     []
   );
   const renderLeaf = React.useCallback(

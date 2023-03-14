@@ -1,13 +1,20 @@
 import * as React from "react";
 import { RenderElementProps } from "slate-react";
 import { LinkElement } from "./LinkElement";
+import { NumberedListItem } from "./NumberedListItem";
+
+import "./EditorElement.css";
 
 export const EditorElement: React.FC<RenderElementProps> = (props) => {
   const { attributes, children, element } = props;
 
   switch (element.type) {
     case "numbered-list":
-      return <ol {...attributes}>{children}</ol>;
+      return (
+        <ol className="numberedList" {...attributes}>
+          {children}
+        </ol>
+      );
     case "bulleted-list":
       return <ul {...attributes}>{children}</ul>;
     case "list-item":
@@ -16,6 +23,8 @@ export const EditorElement: React.FC<RenderElementProps> = (props) => {
       return <h1 {...attributes}>{children}</h1>;
     case "link":
       return <LinkElement {...props} />;
+    case "numbered-list-item":
+      return <NumberedListItem {...props} />;
     default:
       return <p {...attributes}>{children}</p>;
   }

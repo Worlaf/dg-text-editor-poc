@@ -3,16 +3,25 @@ import { ReactEditor } from "slate-react";
 
 export type LinkElement = { type: "link"; url: string; children: Descendant[] };
 
+export type NumberedListItem = {
+  type: "numbered-list-item";
+  customNumber?: number;
+  children: Descendant[];
+};
+
 export type ListElementType = "bulleted-list" | "numbered-list";
-export type ElementType =
-  | ListElementType
+export type SimpleElementType =
   | "paragraph"
   | "list-item"
-  | "heading";
+  | "heading"
+  | ListElementType;
 
 type CustomElement =
-  | { type: ElementType; children: Descendant[] }
-  | LinkElement;
+  | { type: SimpleElementType; children: Descendant[] }
+  | LinkElement
+  | NumberedListItem;
+
+export type ElementType = CustomElement["type"];
 
 type FormattedText = {
   isBold?: boolean;
@@ -29,3 +38,6 @@ declare module "slate" {
     Text: CustomText;
   }
 }
+
+export const INLINE_ELEMENT_TYPES: ReadonlyArray<ElementType> = ["link"];
+export const VOID_ELEMENT_TYPES: ReadonlyArray<ElementType> = [];

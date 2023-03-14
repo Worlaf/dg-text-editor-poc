@@ -1,6 +1,13 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { Editor, Transforms, Text, Element, Range } from "slate";
-import { CustomText, ElementType, LinkElement } from "./customTypes";
+import {
+  CustomText,
+  ElementType,
+  INLINE_ELEMENT_TYPES,
+  LinkElement,
+  SimpleElementType,
+  VOID_ELEMENT_TYPES,
+} from "./customTypes";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { isUndefined } from "lodash";
 import { isUrl } from "../../utils/isUrl";
@@ -126,7 +133,7 @@ export const isBlockActive = (editor: Editor, blockType: ElementType) => {
 
 const LIST_TYPES = ["bulleted-list", "numbered-list"];
 
-const toggleBlock = (editor: Editor, blockType: ElementType) => {
+const toggleBlock = (editor: Editor, blockType: SimpleElementType) => {
   const isActive = isBlockActive(editor, blockType);
   const isList = LIST_TYPES.includes(blockType);
 
@@ -138,8 +145,20 @@ const toggleBlock = (editor: Editor, blockType: ElementType) => {
     split: true,
   });
 
+  const resolveElementType = (): ElementType => {
+    if (isActive) {
+      return "paragraph";
+    }
+
+    if (isList) {
+      return blockType === "numbered-list" ? "numbered-list-item" : "list-item";
+    }
+
+    return blockType;
+  };
+
   Transforms.setNodes<Element>(editor, {
-    type: isActive ? "paragraph" : isList ? "list-item" : blockType,
+    type: resolveElementType(),
   });
 
   if (!isActive && isList) {
@@ -152,7 +171,7 @@ export const withCustomInlineElements = (editor: Editor) => {
   const { insertData, insertText, isInline } = editor;
 
   editor.isInline = (element) =>
-    ["link"].includes(element.type) || isInline(element);
+    INLINE_ELEMENT_TYPES.includes(element.type) || isInline(element);
 
   editor.insertText = (text) => {
     if (text && isUrl(text)) {
@@ -171,6 +190,15 @@ export const withCustomInlineElements = (editor: Editor) => {
       insertData(data);
     }
   };
+
+  return editor;
+};
+
+export const withCustomVoidElements = (editor: Editor) => {
+  const { isVoid } = editor;
+
+  editor.isVoid = (element) =>
+    VOID_ELEMENT_TYPES.includes(element.type) || isVoid(element);
 
   return editor;
 };
